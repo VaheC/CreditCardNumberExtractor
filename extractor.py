@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import cv2
+# import streamlit as st
 
 def get_card_xy(model_path, image_path):
     #model_path = 'odo_detector.tflite'
@@ -12,8 +13,8 @@ def get_card_xy(model_path, image_path):
     output_details = interpreter.get_output_details()
 
     # Obtain the height and width of the corresponding image from the input tensor
-    image_height = input_details[0]['shape'][1] # 640
-    image_width = input_details[0]['shape'][2] # 640
+    image_height = input_details[0]['shape'][2] # 640
+    image_width = input_details[0]['shape'][3] # 640
 
     # Image Preparation
     # image_name = 'car.jpg'
@@ -22,6 +23,7 @@ def get_card_xy(model_path, image_path):
 
     image_np = np.array(image_resized) #
     image_np = np.true_divide(image_np, 255, dtype=np.float32) 
+    image_np = np.moveaxis(image_np, -1, 0)
     image_np = image_np[np.newaxis, :]
 
     # inference
@@ -54,10 +56,17 @@ def get_card_xy(model_path, image_path):
         else:
             pass
             
-    x1 = int((x_center - width / 2) * image_width)
-    y1 = int((y_center - height / 2) * image_height)
-    x2 = int((x_center + width / 2) * image_width)
-    y2 = int((y_center + height / 2) * image_height)
+    # x1 = int((x_center - width / 2) * image_width)
+    # y1 = int((y_center - height / 2) * image_height)
+    # x2 = int((x_center + width / 2) * image_width)
+    # y2 = int((y_center + height / 2) * image_height)
+
+    output_image_width = 640
+    output_image_height = 640
+    x1 = int((x_center - width / 2) * output_image_width)
+    y1 = int((y_center - height / 2) * output_image_height)
+    x2 = int((x_center + width / 2) * output_image_width)
+    y2 = int((y_center + height / 2) * output_image_height)
 
     # draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
     # text = f"Class: {class_name}, Score: {final_score:.2f}"
