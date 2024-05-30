@@ -19,10 +19,10 @@ from extractor import get_card_xy, get_digit
 # MODEL_PATH = "runs/train/exp/weights/best.pt"
 
 def main():
-    st.title("Card number extractor")
+    st.title("Card number detector")
 
     # Use st.camera to capture images from the user's camera
-    img_file_buffer = st.camera_input(label='Please, take a photo of a card')
+    img_file_buffer = st.camera_input(label='Please, take a photo of a card', key='card')
 
     # try:
     #     image = Image.open(img_file_buffer)
@@ -34,7 +34,7 @@ def main():
         # Convert the image to a NumPy array
         image = Image.open(img_file_buffer)
         image_np = np.array(image)
-        resized_image = cv2.resize(image_np, (128, 128))
+        resized_image = cv2.resize(image_np, (640, 640))
         resized_image = resized_image.astype(np.uint8)
         resized_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
         cv2.imwrite('card_image.jpg', resized_image)
@@ -47,25 +47,23 @@ def main():
             image_path='card_image.jpg'
         )
 
-        st.write(card_confidence)
-
         if card_confidence == 0:
             display_text = "A card is not detected in the image!!!"
             st.image('card_image.jpg', caption=f"{display_text}", use_column_width=True)
         else:
-            cropped_image = gray[y1:y2, x1:x2]
-            # cropped_image = resized_image[y1:y2, x1:x2]
-            cropped_image = cv2.resize(cropped_image, (128, 128))
-            cv2.imwrite('card_number_image.jpg', cropped_image)
+            # cropped_image = gray[y1:y2, x1:x2]
+            # # cropped_image = resized_image[y1:y2, x1:x2]
+            # cropped_image = cv2.resize(cropped_image, (128, 128))
+            # cv2.imwrite('card_number_image.jpg', cropped_image)
             
-            extracted_digit = get_digit(
-                model_path="card_number_extractor.tflite", 
-                image_path='card_number_image.jpg', 
-                threshold=0.4
-            )
+            # extracted_digit = get_digit(
+            #     model_path="card_number_extractor.tflite", 
+            #     image_path='card_number_image.jpg', 
+            #     threshold=0.4
+            # )
 
-            display_text = f'Here is the zoomed card number: {extracted_digit}'
-            st.image('card_number_image.jpg', caption=f"{display_text}", use_column_width=True)
+            # display_text = f'Here is the zoomed card number: {extracted_digit}'
+            # st.image('card_number_image.jpg', caption=f"{display_text}", use_column_width=True)
 
             image = Image.open('card_image.jpg')
             image_resized = image.resize((640, 640))
@@ -76,8 +74,11 @@ def main():
             draw.text((x1, y1), text, fill="red")
             # Saving Images
             image_resized.save('card_highlighted_image.jpg')
-            display_text = 'Here is the card on the image.'
-            st.image('card_highlighted_image.jpg', caption=f"{display_text}", use_column_width=True)
+            
+            display_text = f'Here is the card number on the image with {card_confidence:.4f} confidence.'
+            st.write(f"{display_text}")
+            # st.image('card_highlighted_image.jpg', caption=f"{display_text}", use_column_width=True)
+            st.image('card_highlighted_image.jpg', use_column_width=True)
 
         st.session_state.pop("card")
 
