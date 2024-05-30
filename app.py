@@ -22,14 +22,19 @@ def main():
     st.title("Card number extractor")
 
     # Use st.camera to capture images from the user's camera
-    img_file_buffer = st.camera_input(label='Please, take a photo of a card', key="card")
+    img_file_buffer = st.camera_input(label='Please, take a photo of a card')
+
+    # try:
+    #     image = Image.open(img_file_buffer)
+    # except:
+    #     st.write('No shot detected')
 
     # Check if an image is captured
     if img_file_buffer is not None:
         # Convert the image to a NumPy array
         image = Image.open(img_file_buffer)
         image_np = np.array(image)
-        resized_image = cv2.resize(image_np, (640, 640))
+        resized_image = cv2.resize(image_np, (128, 128))
         resized_image = resized_image.astype(np.uint8)
         resized_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
         cv2.imwrite('card_image.jpg', resized_image)
@@ -50,7 +55,7 @@ def main():
         else:
             cropped_image = gray[y1:y2, x1:x2]
             # cropped_image = resized_image[y1:y2, x1:x2]
-            cropped_image = cv2.resize(cropped_image, (640, 640))
+            cropped_image = cv2.resize(cropped_image, (128, 128))
             cv2.imwrite('card_number_image.jpg', cropped_image)
             
             extracted_digit = get_digit(
